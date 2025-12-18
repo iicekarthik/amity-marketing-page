@@ -163,7 +163,7 @@ const EnquiryForm = ({ onClose, showClose }) => {
       formData.append("apiParams", apiParams);
 
       const response = await axios.post(apiUrl, formData, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: { "Content-Type": "text/xml; charset=utf-8" },
       });
 
       // Parse XML
