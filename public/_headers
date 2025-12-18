@@ -1,0 +1,2 @@
+/*
+  Content-Security-Policy: frame-ancestors https://vidyarishi.com http://localhost:3000;
