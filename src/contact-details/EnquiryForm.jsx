@@ -135,46 +135,72 @@ const EnquiryForm = ({ onClose, showClose }) => {
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || "N/A";
 
-      const apiParams = JSON.stringify([
+      const cleanCountryCode = form.countryCode.replace(/\D/g, ""); // removes +
+      const cleanPhone = phone.replace(/\D/g, "");
+
+if (!/^\d{10}$/.test(cleanPhone)) {
+  toast.warning("Please enter a valid 10-digit mobile number");
+  setLoading(false);
+  return;
+}
+
+const mobile10 = cleanPhone; // ✅ exactly 10 digits
+
+
+
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/biziverse/set-lead`,
         {
-          moduleID: 25,
-          actionType: "setLead",
-          data: JSON.stringify([
+          apiParams: [
             {
-              companyName: "N/A",
-              title: "Mr/Ms",
-              firstName,
-              lastName,
-              email,
-              mobile: phone,
-              designation: "N/A",
-              city,
-              state,
-              needs: `${program_level} - ${course}`,
-              subject: consent ? `${course} (Consent Accepted) ` : course,
-              source: "Amity University Landing Page, Vidyarishi Website",
+              moduleID: 25,
+              actionType: "setLead",
+              data: [
+                {
+                  companyName: "N/A",
+                  title: "Mr/Ms",
+                  firstName,
+                  lastName,
+                  email,
+                      mobile: mobile10, 
+                  designation: "N/A",
+                  city,
+                  state,
+                  needs: `${program_level} - ${course}`,
+                  subject: consent
+                    ? `${course} (Consent Accepted)`
+                    : course,
+                  source: "Amity Online Website",
+                },
+              ],
             },
-          ]),
+          ],
         },
-      ]);
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
 
-      const formData = new URLSearchParams();
-      formData.append("apiKey", apiKey);
-      formData.append("apiParams", apiParams);
 
-      const response = await axios.post(apiUrl, formData, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      // const formData = new URLSearchParams();
+      // formData.append("apiKey", apiKey);
+      // formData.append("apiParams", apiParams);
+
+      // const response = await axios.post(apiUrl, formData, {
+      //   headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      // });
 
       // Parse XML
-      const xmlResponse = xml2js(response.data, { compact: true });
+      const xmlResponse = xml2js(response.data.data, { compact: true });
       const error = xmlResponse.apiResp.error._text === "true";
       const errorMessage = xmlResponse.apiResp.errorMessage._text;
 
-      let responseText = response.data;
+      const responseText = response.data.data;
 
-      // Use Regex to Detect Error Codes in XML Response
-      const match = responseText.match(/<errorCode>(\d+)<\/errorCode>/);
+      // ✅ Use Regex to Detect Error Codes in XML Response
+      const match = responseText.match(/<errorCode>(-?\d+)<\/errorCode>/);
       const errorCode = match ? match[1] : null;
 
       if (errorCode === "200") {
@@ -183,7 +209,7 @@ const EnquiryForm = ({ onClose, showClose }) => {
         toast.warning("This Mobile Number Already Used.");
       } else if (errorCode === "201") {
         toast.warning("Missing required data. Please fill all fields.");
-      } else if (responseText.includes("-1")) {
+      } else if (errorCode === "-1") {
         toast.success("We Will Contact You Shortlyyy!");
         setTimeout(() => {
           setContactForm({
@@ -206,6 +232,7 @@ const EnquiryForm = ({ onClose, showClose }) => {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="relative bg-white rounded-2xl p-6 shadow-lg max-w-md w-full">
@@ -342,9 +369,8 @@ const EnquiryForm = ({ onClose, showClose }) => {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full mt-8 bg-[#002147] text-white py-3 rounded-xl font-semibold hover:bg-[#1a3a6d] transition ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+          className={`w-full mt-8 bg-[#002147] text-white py-3 rounded-xl font-semibold hover:bg-[#1a3a6d] transition ${loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
         >
           {loading ? "Submitting..." : "SUBMIT"}
         </button>
