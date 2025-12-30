@@ -10,8 +10,12 @@ import StudentTestimonials from '../components/StudentTestimonials'
 import FAQ from '../components/FAQ'
 import Footer from '../components/Footer'
 import ContactBanner from '../contact-details/ContactBanner'
+import StaticFooter from '../components/StaticFooter'
+import EnquiryModal from '../contact-details/EnquiryModal'
+import { useState } from "react";
 
 const AmityUniversity = () => {
+const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
 
     return (
         <div className="font-sans bg-white">
@@ -27,6 +31,17 @@ const AmityUniversity = () => {
             <StudentTestimonials />
             <FAQ />
             <Footer />
+            {/* BOTTOM STICKY HEADER */}
+            <StaticFooter
+                screenSize="sm"
+                onEnquiryClick={() => setIsEnquiryOpen(true)}
+            />
+
+            {/* ENQUIRY MODAL */}
+            <EnquiryModal
+                isOpen={isEnquiryOpen}
+                onClose={() => setIsEnquiryOpen(false)}
+            />
         </div>
     )
 }

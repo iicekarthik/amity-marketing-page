@@ -71,7 +71,7 @@ const Footer = () => {
   const col3 = courses.slice(2 * colSize);
 
   return (
-    <footer className="bg-[#002147] text-white text-sm mt-16">
+    <footer className="bg-[#002147] text-white text-sm mt-16 mb-10">
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
           {/* Column 1 */}
